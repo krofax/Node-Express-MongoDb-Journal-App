@@ -2,6 +2,9 @@ const express = require('express');
 const path = require('path');
 const mongoose = require ('mongoose');
 const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
+const session = require('express-session');
+const flash = require('connect-flash');
 
 //Connecting Mongoose
 mongoose.connect('mongodb://localhost/nodekb');
@@ -37,6 +40,22 @@ app.use(bodyParser.json())
 
 //Set Public Folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+//Express Session Middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+  }));
+
+  //Express Message Middleware
+  app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
 
 //Home Route
 app.get('/', (req, res) => {
@@ -109,6 +128,7 @@ app.post('/article/add', (req, res) => {
 
 // Update Submit POST Route
 
+
 app.post('/article/edit/:id', (req, res) => {
     let article = {};
     article.title = req.body.title;
@@ -123,6 +143,19 @@ app.post('/article/edit/:id', (req, res) => {
         } else{
             res.redirect('/');
         }
+    });
+});
+
+//Delete article
+
+app.delete('/article/:id', function(req, res){
+    let query = {_id:req.params.id}
+
+    Article.remove(query, function(err){
+        if(err){
+            console.log(err);
+        }
+        res.send('Success');
     });
 });
 
