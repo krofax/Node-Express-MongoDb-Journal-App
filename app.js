@@ -44,18 +44,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 //Express Session Middleware
 app.use(session({
     secret: 'keyboard cat',
-    resave: false,
+    resave: true,
     saveUninitialized: true,
-    cookie: { secure: true }
   }));
 
   //Express Message Middleware
   app.use(require('connect-flash')());
-app.use(function (req, res, next) {
-  res.locals.messages = require('express-messages')(req, res);
-  next();
-});
-
+  app.use(function (req, res, next) {
+    res.locals.messages = require('express-messages')(req, res);
+    next();
+  });
 
 //Home Route
 app.get('/', (req, res) => {
@@ -83,7 +81,7 @@ app.get('/', (req, res) => {
 
 
 //Add Route
-app.get('/article/add', (req, res) => {
+app.get('/article/add/', (req, res) => {
     Article.find({}, (err, articles) => {
         if (err) {
            console.log(err); 
@@ -120,6 +118,7 @@ app.post('/article/add', (req, res) => {
         if (err) {
             console.log(err);
         } else{
+            req.flash('success', 'Article added');
             res.redirect('/');
         }
     });
@@ -141,6 +140,7 @@ app.post('/article/edit/:id', (req, res) => {
         if (err) {
             console.log(err);
         } else{
+            req.flash('success', 'Article updated');
             res.redirect('/');
         }
     });
@@ -154,8 +154,11 @@ app.delete('/article/:id', function(req, res){
     Article.remove(query, function(err){
         if(err){
             console.log(err);
+        }else{
+            req.flash('danger', 'Article deleted');
+            res.send('Success');
         }
-        res.send('Success');
+        
     });
 });
 
