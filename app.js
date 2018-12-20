@@ -118,7 +118,7 @@ app.post('/article/add', (req, res) => {
         if (err) {
             console.log(err);
         } else{
-            req.flash('success', 'Article added');
+            req.flash('success', 'Article successfully added');
             res.redirect('/');
         }
     });
